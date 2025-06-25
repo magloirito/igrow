@@ -1,594 +1,722 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <!-- lang attribute will be updated dynamically by JS -->
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Title will be updated dynamically by JS -->
-    <title>Pests & Diseases Management</title>
-    <!-- Added Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Title will be updated dynamically by JS -->
+  <title>Pests & Diseases Management</title>
+  <!-- Added Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-    <div class="container">
-        <!-- Language Switcher -->
-        <div class="language-switcher">
-            <label for="langSelect" data-translate="languageLabel">Language:</label>
-            <select id="langSelect">
-                <option value="en">English</option>
-                <option value="fr">Français</option>
+  <div class="container">
+    <!-- Language Switcher -->
+    <div class="language-switcher">
+      <label for="langSelect" data-translate="languageLabel">Language:</label>
+      <select id="langSelect">
+        <option value="en">English</option>
+        <option value="fr">FranÃ§ais</option>
+      </select>
+    </div>
+
+    <!-- THIS IS THE MAIN PAGE TITLE THAT WILL NOW CHANGE DYNAMICALLY -->
+    <h1 id="pageTitle" data-translate="pageTitlePlanning">Crop Protection Planning</h1>
+
+    <!-- Original Dropdown Structure (Now hidden by CSS, but fully functional) -->
+    <div class="dropdown">
+      <button id="planningDropdownBtn" class="dropdown-btn" data-translate="planningDropdownBtn">Planning</button>
+      <div class="dropdown-content">
+        <div id="farmList">
+          <h4 data-translate="farmsAndPestsTitle">My farms</h4>
+        </div>
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+        <button id="addFarmBtn" data-translate="addFarmBtn">Add New Farm</button>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button id="calendarDropdownBtn" class="dropdown-btn" data-translate="calendarDropdownBtn">Calendar</button>
+      <div id="calendarSection" class="dropdown-content">
+        <div class="calendar-header">
+          <!-- FIX: Changed < to &lt; to prevent HTML rendering issues -->
+          <button id="prevMonthBtn">&lt;</button>
+          <h2 id="currentMonthYear"></h2>
+          <!-- FIX: Changed > to &gt; for consistency and correctness -->
+          <button id="nextMonthBtn">&gt;</button>
+        </div>
+        <div class="calendar-weekdays">
+          <div data-translate="mon">Mon</div>
+          <div data-translate="tue">Tue</div>
+          <div data-translate="wed">Wed</div>
+          <div data-translate="thu">Thu</div>
+          <div data-translate="fri">Fri</div>
+          <div data-translate="sat">Sat</div>
+          <div data-translate="sun">Sun</div>
+        </div>
+        <div id="calendar"></div>
+        <div id="calendarLegend" class="calendar-legend">
+          <span><span class="legend-color legend-missed"></span> <span data-translate="legendMissed">Missed</span></span>
+          <span><span class="legend-color legend-upcoming"></span> <span data-translate="legendUpcoming">Upcoming</span></span>
+          <span><span class="legend-color legend-completed"></span> <span data-translate="legendCompleted">Completed</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button id="inventoryDropdownBtn" class="dropdown-btn" data-translate="inventoryDropdownBtn">Inventory</button>
+      <div id="supplySectionContent" class="dropdown-content">
+        <h3 class="report-main-title" data-translate="inventoryTitle">Products in Use</h3>
+        <div id="supplyList">
+          <p data-translate="inventoryEmpty">No products listed yet. Add treatments to populate this list.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button id="reportDropdownBtn" class="dropdown-btn" data-translate="reportDropdownBtn">Report</button>
+      <div class="dropdown-content">
+        <h3 class="report-main-title" data-translate="reportTitle">Activities Report</h3>
+        <div id="reportContent">
+          <p data-translate="reportEmpty">Click "Update Report" to see farm details.</p>
+        </div>
+        <button id="generateReportBtn" data-translate="updateReportBtn">Update Report</button>
+      </div>
+    </div>
+    <!-- End of original dropdowns -->
+
+  </div> <!-- End .container -->
+
+  <!-- Modals -->
+
+  <!-- Inventory (Supply) Modals -->
+  <div id="supplyCalculatorModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">Ã—</span>
+      <!-- Title updated dynamically by JS -->
+      <h2 id="supplyCalculatorTitle" data-translate="supplyCalcTitle">Application Calculator</h2>
+      <form id="supplyCalculatorForm">
+        <fieldset class="calculator-fieldset">
+          <legend data-translate="supplyCalcLegend">Calculate Quantity</legend>
+          <!-- Surface Area -->
+          <div class="form-group">
+            <label for="supplyCalcSurfaceArea" data-translate="supplyCalcSurfaceLabel">Surface to be treated (ha):</label>
+            <input type="number" id="supplyCalcSurfaceArea" min="0" step="any" data-translate-placeholder="supplyCalcSurfacePlaceholder" placeholder="e.g. 1.5"> <!-- Allows decimals -->
+            <small id="surfaceAreaInfo" class="validation-info" style="display: none;"></small> <!-- Dynamic content -->
+            <small id="surfaceAreaError" class="validation-warning" style="display: none;"></small> <!-- Dynamic content -->
+          </div>
+          <!-- Dose to apply - Readonly -->
+          <div class="form-group rate-unit-group">
+            <div>
+              <label for="supplyCalcAppRate" data-translate="supplyCalcDoseLabel">Dose to apply:</label>
+              <input type="number" id="supplyCalcAppRate" min="0" step="any" data-translate-placeholder="supplyCalcDosePlaceholder" placeholder="From Treatment" readonly> <!-- Allows decimals -->
+            </div>
+            <div>
+              <label for="supplyCalcUnit" data-translate="supplyCalcRateUnitLabel">Rate Unit:</label>
+              <select id="supplyCalcUnit" disabled>
+                <!-- Options populated based on treatment -->
+                <option value="" disabled selected data-translate="selectUnitPlaceholder">Select Unit...</option> <!-- Placeholder -->
+                <option value="L/ha">L/ha</option>
+                <option value="kg/ha">kg/ha</option>
+                <option value="ml/ha">ml/ha</option>
+                <option value="g/ha">g/ha</option>
+                <option value="ml/applicator">ml/applicator</option>
+                <option value="g/applicator">g/applicator</option>
+                <option value="ml/plant">ml/plant</option>
+                <option value="g/plant">g/plant</option>
+                <option value="ml/kg">ml/kg</option>
+                <option value="g/kg">g/kg</option>
+                <option value="ml/L">ml/L</option>
+                <option value="g/L">g/L</option>
+                <option value="g/unit">g/unit</option>
+                <option value="ml/unit">ml/unit</option>
+                <option value="tablet/unit">tablet/unit</option>
+                <option value="other" data-translate="otherUnit">other</option>
+              </select>
+            </div>
+          </div>
+          <small data-translate="supplyCalcDoseHelp" style="margin-top: -10px; margin-bottom: 10px;">Dose is determined by the treatment record.</small>
+          <!-- Number of Sprayers -->
+          <div class="form-group">
+            <label for="supplyCalcNumApplicators" data-translate="supplyCalcNumAppLabel">Number of Sprayers/Applicators:</label>
+            <input type="number" id="supplyCalcNumApplicators" min="1" step="1" value="1"> <!-- No decimals needed -->
+            <small data-translate="supplyCalcNumAppHelp">Used if dose unit is per applicator. E.g., 20 sprayers/ha.</small>
+          </div>
+          <!-- Quantity per Sprayer/Applicator -->
+          <div class="form-group">
+            <label for="supplyCalcPerApplicator" data-translate="supplyCalcPerAppLabel">Quantity per Sprayer/Applicator:</label>
+            <input type="text" id="supplyCalcPerApplicator" readonly> <!-- Will be formatted text -->
+            <small data-translate="supplyCalcPerAppHelp">Auto-calculated based on dose and number of applicators.</small>
+          </div>
+          <!-- Total Quantity -->
+          <div class="form-group">
+            <label for="supplyCalcTotalQuantity" data-translate="supplyCalcTotalQtyLabel">Total Quantity Needed:</label>
+            <input type="text" id="supplyCalcTotalQuantity" readonly> <!-- Will be formatted text -->
+            <small data-translate="supplyCalcTotalQtyHelp">Auto-calculated: Calculated Rate per Ha Ã— Surface Area (ha).</small>
+          </div>
+        </fieldset>
+      </form>
+      <div class="modal-actions">
+        <button type="button" data-translate="closeBtn">Close</button> <!-- Generic close button -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Rename Modal -->
+  <div id="renameProductModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">Ã—</span>
+      <h2 id="renameProductTitle" data-translate="renameProductTitle">Rename Product</h2>
+      <!-- Text constructed dynamically by JS -->
+      <p><span data-translate="renameProductPrompt1">Enter the new name for the product. This will update the product name in </span><strong><span data-translate="renameProductPrompt2">ALL</span></strong><span data-translate="renameProductPrompt3"> treatments currently using "</span><span id="renameProductOldName"></span>".</p>
+      <form id="renameProductForm">
+        <div class="form-group">
+          <label for="renameProductNewName" data-translate="renameProductNewLabel">New Product Name:</label>
+          <input type="text" id="renameProductNewName" required data-translate-placeholder="renameProductNewPlaceholder" placeholder="Enter new name">
+        </div>
+        <div class="modal-actions" style="justify-content: space-around;">
+          <button type="submit" id="renameProductConfirmBtn" style="background-color: #ffc107; color: #333;" data-translate="renameProductConfirmBtn">Rename Product</button>
+          <button type="button" data-translate="cancelBtn">Cancel</button> <!-- Generic cancel button -->
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Product *Treatments* Modal -->
+  <div id="deleteProductConfirmModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">Ã—</span>
+      <h2 style="color: #dc3545;" data-translate="deleteProductConfirmTitle">Delete All Associated Treatments?</h2>
+      <!-- Text constructed dynamically by JS -->
+      <p><span data-translate="deleteProductConfirmPrompt1">Are you sure you want to delete </span><strong><span data-translate="deleteProductConfirmPrompt2">ALL</span></strong><span data-translate="deleteProductConfirmPrompt3"> treatments associated with the product "</span><strong id="deleteProductName"></strong><span data-translate="deleteProductConfirmPrompt4">"?</span></p>
+      <p style="font-weight: bold; color: #dc3545;" data-translate="deleteProductConfirmWarning">This action cannot be undone.</p>
+      <div class="modal-actions" style="justify-content: space-around;">
+        <button id="deleteProductConfirmBtn" style="background-color: #dc3545;" data-translate="deleteProductConfirmBtn">Yes, Delete Treatments</button>
+        <button type="button" data-translate="cancelBtn">Cancel</button> <!-- Generic cancel button -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Stock Modal -->
+  <div id="productStockModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">Ã—</span>
+      <h2 id="productStockTitle" data-translate="productStockTitle">Product Stock Details</h2>
+
+      <!-- Product Summary -->
+      <p><strong data-translate="productStockProductLabel">Product:</strong> <span id="stockModalProductName">N/A</span></p>
+      <p><strong data-translate="productStockUsedInLabel">Used in:</strong> <span id="stockModalUses">N/A</span></p> <!-- Dynamic -->
+
+      <!-- Calculation Summary -->
+      <p><strong data-translate="productStockNeededLabel">Quantity Needed:</strong> <span id="stockModalNeeded">N/A</span></p> <!-- Dynamic -->
+      <small style="display: block; margin-top: -8px; margin-bottom: 5px; font-size: 0.85em; color: #6c757d;" data-translate="productStockNeededHelp">(for Upcoming, Unscheduled and missed treatments)</small>
+      <div id="stockNeededWarnings" class="stock-warnings"></div> <!-- Dynamic content -->
+
+      <p style="margin-top:15px;"><strong data-translate="productStockUsedLabel">Quantity Used:</strong> <span id="stockModalUsed">N/A</span></p> <!-- Dynamic -->
+      <small style="display: block; margin-top: -8px; margin-bottom: 5px; font-size: 0.85em; color: #6c757d;" data-translate="productStockUsedHelp">(for all the treatments completed)</small>
+      <div id="stockUsedWarnings" class="stock-warnings"></div> <!-- Dynamic content -->
+
+      <hr style="margin: 15px 0; border-color: #eee;">
+
+      <!-- Stock Adjustment Section -->
+      <div class="form-group stock-adjustment-group">
+        <label for="stockModalAdjustmentInput" data-translate="productStockAdjLabel">Stock Adjustment:</label>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input type="number" id="stockModalAdjustmentInput" min="0" step="any" data-translate-placeholder="productStockAdjPlaceholder" placeholder="e.g. 10.5" style="flex-grow: 1;"> <!-- Allows decimals -->
+          <button type="button" id="addStockBtn" class="stock-adj-btn add" data-translate-title="productStockAddTitle" title="Add to Total Stock"><i class="fas fa-plus"></i> <span data-translate="addBtn">Add</span></button>
+          <button type="button" id="removeStockBtn" class="stock-adj-btn remove" data-translate-title="productStockRemoveTitle" title="Remove from Total Stock"><i class="fas fa-minus"></i> <span data-translate="removeBtn">Remove</span></button>
+        </div>
+        <small data-translate="productStockAdjHelp">Enter amount to add or remove from Total Stock below.</small>
+      </div>
+
+      <!-- Total Stock Section (Input + Unit) -->
+      <div class="form-group calculated-stock-item">
+        <label for="stockModalStockInput" data-translate="productStockTotalLabel">Total Stock (Calculated):</label>
+        <div class="stock-value-unit-pair">
+          <input type="text" id="stockModalStockInput" style="flex-grow: 1;" readonly> <!-- Use text to display formatted number -->
+          <span id="stockModalUnitLabel" class="stock-unit-label" data-translate="units">units</span>
+        </div>
+        <small data-translate="productStockTotalHelp">This is the total quantity acquired to date (after adjustments).</small>
+        <div id="stockTotalWarnings" class="stock-warnings"></div> <!-- Dynamic content -->
+      </div>
+
+      <!-- Current Stock Section (Input + Unit) -->
+      <div class="form-group calculated-stock-item">
+        <label for="stockModalCurrentStockInput" data-translate="productStockCurrentLabel">Current Stock (Calculated):</label>
+        <div class="stock-value-unit-pair">
+          <input type="text" id="stockModalCurrentStockInput" readonly> <!-- Use text to display formatted number -->
+          <span id="stockModalCurrentUnitLabel" class="stock-unit-label" data-translate="units">units</span>
+        </div>
+        <small data-translate="productStockCurrentHelp">Total Stock - Quantity Used (for completed treatments).</small>
+        <div id="stockCurrentWarnings" class="stock-warnings">
+          <!-- JS will place "You need more products!..." or calculation error messages here -->
+        </div>
+      </div>
+
+      <!-- Stock Balance Section (Input + Unit) -->
+      <div class="form-group calculated-stock-item">
+        <label for="stockModalBalanceInput" data-translate="productStockBalanceLabel">Stock Balance (Calculated):</label>
+        <div class="stock-value-unit-pair">
+          <input type="text" id="stockModalBalanceInput" readonly> <!-- Use text to display formatted number -->
+          <span id="stockModalBalanceUnitLabel" class="stock-unit-label" data-translate="units">units</span>
+        </div>
+        <small data-translate="productStockBalanceHelp">Current Stock - Quantity Needed (for future/missed treatments).</small>
+        <div id="stockBalanceWarnings" class="stock-warnings">
+          <!-- Changed ID from stockModalWarnings -->
+          <!-- JS will place "Insufficient stock...", "Sufficient stock...", or calculation error messages here -->
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" data-translate="closeBtn">Close</button> <!-- Generic close button -->
+      </div>
+    </div>
+  </div>
+  <!-- END: Product Stock Modal -->
+
+  <!-- Farm Modal -->
+  <div id="farmModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">Ã—</span>
+      <h2 data-translate="farmModalTitleUnified">Add/Edit a Farm</h2>
+      <form id="farmForm">
+        <div class="form-group">
+          <label for="farmName" data-translate="farmNameLabel">Farm Name:</label>
+          <input type="text" id="farmName" data-translate-placeholder="farmNamePlaceholder" placeholder="Enter farm name" required>
+        </div>
+        <div class="form-group">
+          <label for="farmLocation" data-translate="farmLocationLabel">Farm Location:</label>
+          <input type="text" id="farmLocation" data-translate-placeholder="farmLocationPlaceholder" placeholder="Enter farm location" required>
+        </div>
+        <div class="form-group">
+          <label for="farmSize" data-translate="farmSizeLabel">Farm Size (ha):</label>
+          <input type="number" id="farmSize" data-translate-placeholder="farmSizePlaceholder" placeholder="e.g. 25.75" min="0" step="any" required>
+          <small data-translate="farmSizeHelp">1 ha = 10,000 mÂ² | 0.5 ha = 5,000 mÂ² | 0.25 ha = 2,500 mÂ²</small>
+        </div>
+        <div class="form-group">
+          <label for="crop" data-translate="cropLabel">Crop:</label>
+          <select id="crop" required>
+            <option value="" data-translate="selectCropPlaceholder">Select a Crop</option>
+            <option value="Wheat" data-translate="cropWheat">Wheat</option>
+            <option value="Corn" data-translate="cropCorn">Corn</option>
+            <option value="Soybeans" data-translate="cropSoybeans">Soybeans</option>
+            <!-- Add more crops as needed -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="farmPlantingDate" data-translate="plantingDateLabel">Planting Date:</label>
+          <input type="date" id="farmPlantingDate">
+          <small data-translate="plantingDateHelp">Optional. Leave blank if N/A.</small>
+        </div>
+        <div class="form-group">
+          <label for="farmHarvestDate" data-translate="harvestDateLabel">Expected Harvest Date:</label>
+          <input type="date" id="farmHarvestDate">
+          <small data-translate="harvestDateHelp">Optional. Leave blank if N/A.</small>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" id="saveFarmBtn" data-translate="saveFarmBtn">Save Farm</button>
+          <button type="button" data-translate="cancelBtn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pest/Disease Modal -->
+  <div id="pestDiseaseModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">Ã—</span>
+      <h2 data-translate="pestModalTitleUnified">Add/Edit a Pest/Disease</h2>
+      <form id="pestDiseaseForm">
+        <div class="form-group">
+          <label for="pestDiseaseFarmId" data-translate="associateFarmLabel">Associate with Farm:</label>
+          <select id="pestDiseaseFarmId" required>
+            <option value="" data-translate="selectFarmPlaceholder">Select a Farm</option>
+          </select>
+          <small data-translate="associateFarmHelp">Pests/Diseases must be associated with a farm.</small>
+        </div>
+        <div class="form-group">
+          <label for="pestDiseaseCrop" data-translate="associatedCropLabel">Associated Crop:</label>
+          <select id="pestDiseaseCrop" disabled>
+            <option value="" data-translate="cropFromFarmPlaceholder">Crop from selected farm</option>
+          </select>
+          <small data-translate="associatedCropHelp">Crop is automatically determined by the selected farm.</small>
+        </div>
+        <div class="form-group">
+          <label for="pestDiseaseCategory" data-translate="pestTypeLabel">Pest/Disease Type:</label>
+          <select id="pestDiseaseCategory">
+            <option value="Disease" data-translate="pestTypeDisease">Disease</option>
+            <option value="Insect" data-translate="pestTypeInsect">Insect</option>
+            <option value="Nematodes" data-translate="pestTypeNematodes">Nematodes</option>
+            <option value="Weeds" data-translate="pestTypeWeeds">Weeds</option>
+            <option value="Other" data-translate="pestTypeOther">Other</option>
+            <option value="unknown" data-translate="pestTypeUnknown">I don't know</option>
+          </select>
+          <div id="diagnoseMessage" style="display: none; color: #0056b3; font-size: 0.9em; margin-top: 5px;" data-translate="diagnoseHelp">
+            Consider using the 'Diagnose' module to help identify the pest or disease.
+          </div>
+        </div>
+        <div class="form-group pest-name-group">
+          <label for="pestDiseaseNameSelect" data-translate="pestNameLabel">Pest/Disease Name:</label>
+          <div class="pest-name-controls">
+            <select id="pestDiseaseNameSelect" required>
+              <option value="" selected data-translate="selectPestPlaceholder">Select Pest/Disease...</option>
             </select>
+            <div class="not-in-list-check">
+              <input type="checkbox" id="pestDiseaseNotInList">
+              <label for="pestDiseaseNotInList" data-translate="notOnListLabel">Not on list?</label>
+            </div>
+          </div>
+          <input type="text" id="pestDiseaseNameCustom" data-translate-placeholder="customPestPlaceholder" placeholder="Enter custom pest or disease name" style="display: none; margin-top: 5px;">
         </div>
-
-        <!-- UPDATED: H1 now has an ID for dynamic updates and no data-translate attribute -->
-        <h1 id="main-app-title">Crop Protection Planning</h1>
-
-        <!-- =================================================================== -->
-        <!-- START: Main App Content Sections                                  -->
-        <!-- =================================================================== -->
-        <main id="app-content">
-
-            <!-- Planning Section (Replaces Planning Dropdown) -->
-            <div id="planningPage" class="main-section active">
-                <!-- Content from original Planning dropdown -->
-                <div id="farmList">
-                    <h4 data-translate="farmsAndPestsTitle">My farms</h4>
-                    <!-- Farm items rendered here by JS -->
-                </div>
-                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
-                <button id="addFarmBtn" data-translate="addFarmBtn">Add New Farm</button>
-            </div>
-
-            <!-- Calendar Section (Replaces Calendar Dropdown) -->
-            <div id="calendarSection" class="main-section">
-                <!-- Content from original Calendar dropdown -->
-                <div class="calendar-header">
-                    <button id="prevMonthBtn"><</button>
-                    <h2 id="currentMonthYear"></h2>
-                    <button id="nextMonthBtn">></button>
-                </div>
-                <div class="calendar-weekdays">
-                    <div data-translate="mon">Mon</div>
-                    <div data-translate="tue">Tue</div>
-                    <div data-translate="wed">Wed</div>
-                    <div data-translate="thu">Thu</div>
-                    <div data-translate="fri">Fri</div>
-                    <div data-translate="sat">Sat</div>
-                    <div data-translate="sun">Sun</div>
-                </div>
-                <div id="calendar"></div>
-                <div id="calendarLegend" class="calendar-legend">
-                     <span><span class="legend-color legend-missed"></span> <span data-translate="legendMissed">Missed</span></span>
-                     <span><span class="legend-color legend-upcoming"></span> <span data-translate="legendUpcoming">Upcoming</span></span>
-                     <span><span class="legend-color legend-completed"></span> <span data-translate="legendCompleted">Completed</span></span>
-                </div>
-            </div>
-
-            <!-- Inventory Section (Replaces Inventory Dropdown) -->
-            <div id="supplySectionContent" class="main-section">
-                <!-- Content from original Inventory dropdown -->
-                <h3 class="report-main-title" data-translate="inventoryTitle">Products in Use</h3>
-                <div id="supplyList">
-                    <p data-translate="inventoryEmpty">No products listed yet. Add treatments to populate this list.</p>
-                    <!-- Products will be listed here by JS -->
-                </div>
-            </div>
-
-            <!-- Report Section (Replaces Report Dropdown) -->
-            <div id="reportPage" class="main-section">
-                <!-- Content from original Report dropdown -->
-                <h3 class="report-main-title" data-translate="reportTitle">Activities Report</h3>
-                <div id="reportContent">
-                    <p data-translate="reportEmpty">Click "Update Report" to see farm details.</p>
-                </div>
-                 <button id="generateReportBtn" data-translate="updateReportBtn">Update Report</button>
-            </div>
-
-        </main>
-        <!-- =================================================================== -->
-        <!-- END: Main App Content Sections                                    -->
-        <!-- =================================================================== -->
-
-    </div> <!-- End .container -->
-
-    <!-- =================================================================== -->
-    <!-- START: Mobile App Bottom Navigation Menu                          -->
-    <!-- =================================================================== -->
-    <nav class="bottom-nav">
-        <a href="#" class="nav-item active" data-target="planningPage" title="Planning">
-            <i class="fas fa-list-check"></i>
-            <span class="nav-text" data-translate="planningDropdownBtn">Planning</span>
-        </a>
-        <a href="#" class="nav-item" data-target="calendarSection" title="Calendar">
-            <i class="fas fa-calendar-days"></i>
-            <span class="nav-text" data-translate="calendarDropdownBtn">Calendar</span>
-        </a>
-        <a href="#" class="nav-item" data-target="supplySectionContent" title="Inventory">
-            <i class="fas fa-boxes-stacked"></i>
-            <span class="nav-text" data-translate="inventoryDropdownBtn">Inventory</span>
-        </a>
-        <a href="#" class="nav-item" data-target="reportPage" title="Report">
-            <i class="fas fa-chart-pie"></i>
-            <span class="nav-text" data-translate="reportDropdownBtn">Report</span>
-        </a>
-    </nav>
-    <!-- =================================================================== -->
-    <!-- END: Mobile App Bottom Navigation Menu                            -->
-    <!-- =================================================================== -->
-
-
-    <!-- Modals (Unaltered) -->
-    <div id="supplyCalculatorModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">×</span>
-            <h2 id="supplyCalculatorTitle" data-translate="supplyCalcTitle">Application Calculator</h2>
-            <form id="supplyCalculatorForm">
-                <fieldset class="calculator-fieldset">
-                    <legend data-translate="supplyCalcLegend">Calculate Quantity</legend>
-                    <div class="form-group">
-                        <label for="supplyCalcSurfaceArea" data-translate="supplyCalcSurfaceLabel">Surface to be treated (ha):</label>
-                        <input type="number" id="supplyCalcSurfaceArea" min="0" step="any" data-translate-placeholder="supplyCalcSurfacePlaceholder" placeholder="e.g. 1.5">
-                        <small id="surfaceAreaInfo" class="validation-info" style="display: none;"></small>
-                        <small id="surfaceAreaError" class="validation-warning" style="display: none;"></small>
-                    </div>
-                    <div class="form-group rate-unit-group">
-                        <div>
-                            <label for="supplyCalcAppRate" data-translate="supplyCalcDoseLabel">Dose to apply:</label>
-                            <input type="number" id="supplyCalcAppRate" min="0" step="any" data-translate-placeholder="supplyCalcDosePlaceholder" placeholder="From Treatment" readonly>
-                        </div>
-                        <div>
-                            <label for="supplyCalcUnit" data-translate="supplyCalcRateUnitLabel">Rate Unit:</label>
-                            <select id="supplyCalcUnit" disabled>
-                                <option value="" disabled selected data-translate="selectUnitPlaceholder">Select Unit...</option>
-                                <option value="L/ha">L/ha</option>
-                                <option value="kg/ha">kg/ha</option>
-                                <option value="ml/ha">ml/ha</option>
-                                <option value="g/ha">g/ha</option>
-                                <option value="ml/applicator">ml/applicator</option>
-                                <option value="g/applicator">g/applicator</option>
-                                <option value="ml/plant">ml/plant</option>
-                                <option value="g/plant">g/plant</option>
-                                <option value="ml/kg">ml/kg</option>
-                                <option value="g/kg">g/kg</option>
-                                <option value="ml/L">ml/L</option>
-                                <option value="g/L">g/L</option>
-                                <option value="g/unit">g/unit</option>
-                                <option value="ml/unit">ml/unit</option>
-                                <option value="tablet/unit">tablet/unit</option>
-                                <option value="other" data-translate="otherUnit">other</option>
-                            </select>
-                        </div>
-                    </div>
-                    <small data-translate="supplyCalcDoseHelp" style="margin-top: -10px; margin-bottom: 10px;">Dose is determined by the treatment record.</small>
-                    <div class="form-group">
-                        <label for="supplyCalcNumApplicators" data-translate="supplyCalcNumAppLabel">Number of Sprayers/Applicators:</label>
-                        <input type="number" id="supplyCalcNumApplicators" min="1" step="1" value="1">
-                        <small data-translate="supplyCalcNumAppHelp">Used if dose unit is per applicator. E.g., 20 sprayers/ha.</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="supplyCalcPerApplicator" data-translate="supplyCalcPerAppLabel">Quantity per Sprayer/Applicator:</label>
-                        <input type="text" id="supplyCalcPerApplicator" readonly>
-                        <small data-translate="supplyCalcPerAppHelp">Auto-calculated based on dose and number of applicators.</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="supplyCalcTotalQuantity" data-translate="supplyCalcTotalQtyLabel">Total Quantity Needed:</label>
-                        <input type="text" id="supplyCalcTotalQuantity" readonly>
-                        <small data-translate="supplyCalcTotalQtyHelp">Auto-calculated: Calculated Rate per Ha × Surface Area (ha).</small>
-                    </div>
-                </fieldset>
-            </form>
-            <div class="modal-actions">
-                <button type="button" data-translate="closeBtn">Close</button>
-            </div>
+        <div class="form-group">
+          <label for="severity" data-translate="severityLabel">Severity:</label>
+          <select id="severity">
+            <option value="none" data-translate="severityNone">None</option>
+            <option value="low" data-translate="severityLow">Low</option>
+            <option value="medium" data-translate="severityMedium">Medium</option>
+            <option value="high" data-translate="severityHigh">High</option>
+          </select>
         </div>
+        <div class="form-group">
+          <label for="action" data-translate="actionLabel">Action:</label>
+          <select id="action">
+            <option value="monitor" data-translate="actionMonitor">Monitor</option>
+            <option value="prevent" data-translate="actionPrevent">Prevent</option>
+            <option value="remove" data-translate="actionRemove">Remove</option>
+            <option value="treat" data-translate="actionTreat">Treat</option>
+            <option value="none" data-translate="actionNone">None</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="observations" data-translate="observationsLabel">Observations:</label>
+          <textarea id="observations" data-translate-placeholder="observationsPlaceholder" placeholder="Enter your observations"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" id="savePestDiseaseBtn" data-translate="savePestBtn">Save Pest/Disease</button>
+          <button type="button" data-translate="cancelBtn">Cancel</button>
+        </div>
+      </form>
     </div>
-    <div id="renameProductModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">×</span>
-            <h2 id="renameProductTitle" data-translate="renameProductTitle">Rename Product</h2>
-            <p><span data-translate="renameProductPrompt1">Enter the new name for the product. This will update the product name in </span><strong><span data-translate="renameProductPrompt2">ALL</span></strong><span data-translate="renameProductPrompt3"> treatments currently using "</span><span id="renameProductOldName"></span>".</p>
-            <form id="renameProductForm">
-                <div class="form-group">
-                    <label for="renameProductNewName" data-translate="renameProductNewLabel">New Product Name:</label>
-                    <input type="text" id="renameProductNewName" required data-translate-placeholder="renameProductNewPlaceholder" placeholder="Enter new name">
-                </div>
-                <div class="modal-actions" style="justify-content: space-around;">
-                    <button type="submit" id="renameProductConfirmBtn" style="background-color: #ffc107; color: #333;" data-translate="renameProductConfirmBtn">Rename Product</button>
-                    <button type="button" data-translate="cancelBtn">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="deleteProductConfirmModal" class="modal">
-         <div class="modal-content">
-             <span class="close-btn">×</span>
-             <h2 style="color: #dc3545;" data-translate="deleteProductConfirmTitle">Delete All Associated Treatments?</h2>
-             <p><span data-translate="deleteProductConfirmPrompt1">Are you sure you want to delete </span><strong><span data-translate="deleteProductConfirmPrompt2">ALL</span></strong><span data-translate="deleteProductConfirmPrompt3"> treatments associated with the product "</span><strong id="deleteProductName"></strong><span data-translate="deleteProductConfirmPrompt4">"?</span></p>
-             <p style="font-weight: bold; color: #dc3545;" data-translate="deleteProductConfirmWarning">This action cannot be undone.</p>
-             <div class="modal-actions" style="justify-content: space-around;">
-                 <button id="deleteProductConfirmBtn" style="background-color: #dc3545;" data-translate="deleteProductConfirmBtn">Yes, Delete Treatments</button>
-                 <button type="button" data-translate="cancelBtn">Cancel</button>
-             </div>
-         </div>
-     </div>
-    <div id="productStockModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">×</span>
-            <h2 id="productStockTitle" data-translate="productStockTitle">Product Stock Details</h2>
-            <p><strong data-translate="productStockProductLabel">Product:</strong> <span id="stockModalProductName">N/A</span></p>
-            <p><strong data-translate="productStockUsedInLabel">Used in:</strong> <span id="stockModalUses">N/A</span></p>
-            <p><strong data-translate="productStockNeededLabel">Quantity Needed:</strong> <span id="stockModalNeeded">N/A</span></p>
-            <small style="display: block; margin-top: -8px; margin-bottom: 5px; font-size: 0.85em; color: #6c757d;" data-translate="productStockNeededHelp">(for Upcoming, Unscheduled and missed treatments)</small>
-            <div id="stockNeededWarnings" class="stock-warnings"></div>
-            <p style="margin-top:15px;"><strong data-translate="productStockUsedLabel">Quantity Used:</strong> <span id="stockModalUsed">N/A</span></p>
-            <small style="display: block; margin-top: -8px; margin-bottom: 5px; font-size: 0.85em; color: #6c757d;" data-translate="productStockUsedHelp">(for all the treatments completed)</small>
-            <div id="stockUsedWarnings" class="stock-warnings"></div>
-            <hr style="margin: 15px 0; border-color: #eee;">
-            <div class="form-group stock-adjustment-group">
-                <label for="stockModalAdjustmentInput" data-translate="productStockAdjLabel">Stock Adjustment:</label>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="number" id="stockModalAdjustmentInput" min="0" step="any" data-translate-placeholder="productStockAdjPlaceholder" placeholder="e.g. 10.5" style="flex-grow: 1;">
-                    <button type="button" id="addStockBtn" class="stock-adj-btn add" data-translate-title="productStockAddTitle" title="Add to Total Stock"><i class="fas fa-plus"></i> <span data-translate="addBtn">Add</span></button>
-                    <button type="button" id="removeStockBtn" class="stock-adj-btn remove" data-translate-title="productStockRemoveTitle" title="Remove from Total Stock"><i class="fas fa-minus"></i> <span data-translate="removeBtn">Remove</span></button>
-                </div>
-                <small data-translate="productStockAdjHelp">Enter amount to add or remove from Total Stock below.</small>
-            </div>
-            <div class="form-group calculated-stock-item">
-                 <label for="stockModalStockInput" data-translate="productStockTotalLabel">Total Stock (Calculated):</label>
-                 <div class="stock-value-unit-pair">
-                     <input type="text" id="stockModalStockInput" style="flex-grow: 1;" readonly>
-                     <span id="stockModalUnitLabel" class="stock-unit-label" data-translate="units">units</span>
-                 </div>
-                 <small data-translate="productStockTotalHelp">This is the total quantity acquired to date (after adjustments).</small>
-                 <div id="stockTotalWarnings" class="stock-warnings"></div>
-            </div>
-            <div class="form-group calculated-stock-item">
-                <label for="stockModalCurrentStockInput" data-translate="productStockCurrentLabel">Current Stock (Calculated):</label>
-                <div class="stock-value-unit-pair">
-                    <input type="text" id="stockModalCurrentStockInput" readonly>
-                    <span id="stockModalCurrentUnitLabel" class="stock-unit-label" data-translate="units">units</span>
-                </div>
-                <small data-translate="productStockCurrentHelp">Total Stock - Quantity Used (for completed treatments).</small>
-                <div id="stockCurrentWarnings" class="stock-warnings"></div>
-            </div>
-            <div class="form-group calculated-stock-item">
-                 <label for="stockModalBalanceInput" data-translate="productStockBalanceLabel">Stock Balance (Calculated):</label>
-                 <div class="stock-value-unit-pair">
-                     <input type="text" id="stockModalBalanceInput" readonly>
-                     <span id="stockModalBalanceUnitLabel" class="stock-unit-label" data-translate="units">units</span>
-                 </div>
-                 <small data-translate="productStockBalanceHelp">Current Stock - Quantity Needed (for future/missed treatments).</small>
-                 <div id="stockBalanceWarnings" class="stock-warnings"></div>
-            </div>
-            <div class="modal-actions">
-                <button type="button" data-translate="closeBtn">Close</button>
-            </div>
-        </div>
-    </div>
-    <div id="farmModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" >×</span>
-            <h2 data-translate="farmModalTitleUnified">Add/Edit a Farm</h2>
-            <form id="farmForm">
-                <div class="form-group">
-                    <label for="farmName" data-translate="farmNameLabel">Farm Name:</label>
-                    <input type="text" id="farmName" data-translate-placeholder="farmNamePlaceholder" placeholder="Enter farm name" required>
-                </div>
-                <div class="form-group">
-                    <label for="farmLocation" data-translate="farmLocationLabel">Farm Location:</label>
-                    <input type="text" id="farmLocation" data-translate-placeholder="farmLocationPlaceholder" placeholder="Enter farm location" required>
-                </div>
-                <div class="form-group">
-                    <label for="farmSize" data-translate="farmSizeLabel">Farm Size (ha):</label>
-                    <input type="number" id="farmSize" data-translate-placeholder="farmSizePlaceholder" placeholder="e.g. 25.75" min="0" step="any" required> 
-                    <small data-translate="farmSizeHelp">1 ha = 10,000 m² | 0.5 ha = 5,000 m² | 0.25 ha = 2,500 m²</small>
-                </div>
-                <div class="form-group">
-                    <label for="crop" data-translate="cropLabel">Crop:</label>
-                    <select id="crop" required>
-                        <option value="" data-translate="selectCropPlaceholder">Select a Crop</option>
-                        <option value="Wheat" data-translate="cropWheat">Wheat</option>
-                        <option value="Corn" data-translate="cropCorn">Corn</option>
-                        <option value="Soybeans" data-translate="cropSoybeans">Soybeans</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="farmPlantingDate" data-translate="plantingDateLabel">Planting Date:</label>
-                    <input type="date" id="farmPlantingDate">
-                    <small data-translate="plantingDateHelp">Optional. Leave blank if N/A.</small>
-                </div>
-                <div class="form-group">
-                    <label for="farmHarvestDate" data-translate="harvestDateLabel">Expected Harvest Date:</label>
-                    <input type="date" id="farmHarvestDate">
-                    <small data-translate="harvestDateHelp">Optional. Leave blank if N/A.</small>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" id="saveFarmBtn" data-translate="saveFarmBtn">Save Farm</button>
-                    <button type="button" data-translate="cancelBtn">Cancel</button> 
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="pestDiseaseModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" >×</span>
-            <h2 data-translate="pestModalTitleUnified">Add/Edit a Pest/Disease</h2>
-            <form id="pestDiseaseForm">
-                <div class="form-group">
-                    <label for="pestDiseaseFarmId" data-translate="associateFarmLabel">Associate with Farm:</label>
-                    <select id="pestDiseaseFarmId" required>
-                         <option value="" data-translate="selectFarmPlaceholder">Select a Farm</option>
-                    </select>
-                    <small data-translate="associateFarmHelp">Pests/Diseases must be associated with a farm.</small>
-                </div>
-                <div class="form-group">
-                    <label for="pestDiseaseCrop" data-translate="associatedCropLabel">Associated Crop:</label>
-                    <select id="pestDiseaseCrop" disabled>
-                        <option value="" data-translate="cropFromFarmPlaceholder">Crop from selected farm</option>
-                    </select>
-                    <small data-translate="associatedCropHelp">Crop is automatically determined by the selected farm.</small>
-                </div>
-                <div class="form-group">
-                    <label for="pestDiseaseCategory" data-translate="pestTypeLabel">Pest/Disease Type:</label>
-                    <select id="pestDiseaseCategory">
-                        <option value="Disease" data-translate="pestTypeDisease">Disease</option>
-                        <option value="Insect" data-translate="pestTypeInsect">Insect</option>
-                        <option value="Nematodes" data-translate="pestTypeNematodes">Nematodes</option>
-                        <option value="Weeds" data-translate="pestTypeWeeds">Weeds</option>
-                        <option value="Other" data-translate="pestTypeOther">Other</option>
-                        <option value="unknown" data-translate="pestTypeUnknown">I don't know</option>
-                    </select>
-                    <div id="diagnoseMessage" style="display: none; color: #0056b3; font-size: 0.9em; margin-top: 5px;" data-translate="diagnoseHelp">
-                        Consider using the 'Diagnose' module to help identify the pest or disease.
-                    </div>
-                </div>
-                <div class="form-group pest-name-group">
-                    <label for="pestDiseaseNameSelect" data-translate="pestNameLabel">Pest/Disease Name:</label>
-                    <div class="pest-name-controls">
-                        <select id="pestDiseaseNameSelect" required>
-                            <option value="" selected data-translate="selectPestPlaceholder">Select Pest/Disease...</option>
-                        </select>
-                        <div class="not-in-list-check">
-                            <input type="checkbox" id="pestDiseaseNotInList">
-                            <label for="pestDiseaseNotInList" data-translate="notOnListLabel">Not on list?</label>
-                        </div>
-                    </div>
-                    <input type="text" id="pestDiseaseNameCustom" data-translate-placeholder="customPestPlaceholder" placeholder="Enter custom pest or disease name" style="display: none; margin-top: 5px;">
-                </div>
-                <div class="form-group">
-                    <label for="severity" data-translate="severityLabel">Severity:</label>
-                    <select id="severity">
-                        <option value="none" data-translate="severityNone">None</option>
-                        <option value="low" data-translate="severityLow">Low</option>
-                        <option value="medium" data-translate="severityMedium">Medium</option>
-                        <option value="high" data-translate="severityHigh">High</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="action" data-translate="actionLabel">Action:</label>
-                    <select id="action">
-                        <option value="monitor" data-translate="actionMonitor">Monitor</option>
-                        <option value="prevent" data-translate="actionPrevent">Prevent</option>
-                        <option value="remove" data-translate="actionRemove">Remove</option>
-                        <option value="treat" data-translate="actionTreat">Treat</option>
-                        <option value="none" data-translate="actionNone">None</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="observations" data-translate="observationsLabel">Observations:</label>
-                    <textarea id="observations" data-translate-placeholder="observationsPlaceholder" placeholder="Enter your observations"></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" id="savePestDiseaseBtn" data-translate="savePestBtn">Save Pest/Disease</button>
-                    <button type="button" data-translate="cancelBtn">Cancel</button> 
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="treatmentModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" >×</span>
-            <h2 data-translate="treatmentModalTitleUnifiedBase">Add/Edit a Treatment</h2>
-            <form id="treatmentForm">
-                <div class="form-group">
-                    <label data-translate="treatmentModalAssociatedFarmLabel">Associated Farm</label> 
-                    <div id="treatmentDisplayFarmName" class="display-only-field">N/A</div>
-                </div>
-                <div class="form-group">
-                    <label data-translate="associatedCropLabel">Associated Crop:</label>
-                    <div id="treatmentDisplayCrop" class="display-only-field">N/A</div>
-                </div>
-                <div class="form-group">
-                    <label data-translate="associatedPestLabel">Associated Pest/Disease:</label>
-                    <div id="treatmentDisplayPest" class="display-only-field" data-translate="associatedPestNone">None (General Farm Treatment)</div>
-                    <small id="treatmentPestLinkInfo" style="display: none;" data-translate="treatmentPestLinkInfo">This treatment is linked to the specific pest/disease shown above.</small>
-                </div>
-                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
-                <h4 class="modal-section-title" data-translate="productSelectionTitle">Product Selection & Dose</h4>
-                <div class="form-group">
-                    <label for="treatmentProductNameSelect"><span data-translate="productNameLabel">Product Name:</span> <span style="color: red;">*</span></label>
-                    <select id="treatmentProductNameSelect">
-                        <option value="" data-translate="selectProductPlaceholder">Select Product...</option>
-                    </select>
-                    <small id="productSearchSuggestion" class="product-search-suggestion" style="display: block;" data-translate="productSearchHelp">
-                        If you don't know what product to use, consider using the product search module.
-                    </small>
-                     <div id="treatmentProductWarning" class="validation-warning" style="display: none;" data-translate="treatmentProductWarning">Please select a Product Name OR check "None of the products listed".</div>
-                </div>
-                 <div class="form-group none-product-checkbox-group">
-                     <input type="checkbox" id="treatmentNoneProductListed" style="width: auto; margin-right: 5px; vertical-align: middle;">
-                     <label for="treatmentNoneProductListed" style="display: inline; font-weight: normal;" data-translate="noneProductListedLabel">None of the products listed</label>
-                     <div id="treatmentNoneProductWarning" class="none-product-warning" style="display: none;">
-                         <span data-translate="noneProductWarn1">Product-specific fields will be disabled.</span><br>
-                        <span style="font-style: italic;" data-translate="noneProductWarn2">If you use other products, please only use those that are legally permitted.</span>
-                    </div>
-                </div>
-                <div id="productDetailsPreview" style="display: none;">
-                    <strong class="product-details-title" data-translate="productDetailsTitle">Product details</strong>
-                    <p><strong data-translate="productDetailsRateLabel">Application Rates:</strong> <span id="productDetailRate">N/A</span></p>
-                    <p><strong data-translate="productDetailsTimeLabel">Treatment Time:</strong> <span id="productDetailTime">N/A</span></p>
-                    <p><strong data-translate="productDetailsFreqLabel">Frequency of Application:</strong> <span id="productDetailFrequency">N/A</span></p>
-                    <a href="#" id="productDetailMoreLink" target="_blank" class="product-details-more-link" data-translate="productDetailsMoreLink">More details...</a>
-                </div>
-                <div class="form-group">
-                    <label for="treatmentDose"><span data-translate="doseToApplyLabel">Dose to apply:</span> <span style="color: red;">*</span></label>
-                    <div class="rate-unit-group">
-                         <div>
-                             <input type="number" id="treatmentDose" data-translate-placeholder="dosePlaceholder" placeholder="e.g. 15.5" min="0" step="any" disabled>
-                         </div>
-                         <div>
-                             <select id="treatmentDoseUnit" disabled> 
-                                <option value="" disabled selected data-translate="selectUnitPlaceholder">Select Unit...</option>
-                                <option value="L/ha">L/ha</option>
-                                <option value="kg/ha">kg/ha</option>
-                                <option value="ml/ha">ml/ha</option>
-                                <option value="g/ha">g/ha</option>
-                                <option value="ml/applicator">ml/applicator</option>
-                                <option value="g/applicator">g/applicator</option>
-                                <option value="ml/plant">ml/plant</option>
-                                <option value="g/plant">g/plant</option>
-                                <option value="ml/kg">ml/kg</option>
-                                <option value="g/kg">g/kg</option>
-                                <option value="ml/L">ml/L</option>
-                                <option value="g/L">g/L</option>
-                                <option value="g/unit">g/unit</option>
-                                <option value="ml/unit">ml/unit</option>
-                                <option value="tablet/unit">tablet/unit</option>
-                                <option value="other" data-translate="otherUnit">other</option>
-                             </select>
-                         </div>
-                    </div>
-                    <small data-translate="doseHelp">Enter the application rate. Enabled when a product is selected.</small>
-                    <div id="treatmentDoseWarning" class="validation-warning" style="display: none;" data-translate="treatmentDoseWarning">Please enter the Dose to apply when a product is selected.</div>
-                    <div id="treatmentUnitWarning" class="validation-warning" style="display: none;" data-translate="treatmentUnitWarning">Please select a Unit for the Dose.</div>
-                </div>
-                <div class="form-group">
-                    <label for="treatmentAppContextType"><span data-translate="multiplierFactorLabel">Multiplier Factor:</span><span id="multiplierFactorRequired" style="color: red; display: none;">*</span></label>
-                    <div class="context-value-group">
-                        <div>
-                            <select id="treatmentAppContextType" disabled> 
-                                <option value="" selected data-translate="selectFactorPlaceholder">Select factor type...</option>
-                                <option value="applicators_ha" data-translate="factorAppHa">Nber of applicators/ha</option>
-                                <option value="plants_ha" data-translate="factorPlantHa">Nber of plants/ha</option>
-                                <option value="total_weight" data-translate="factorWeight">Total weight/ha (e.g., of seeds, in kg)</option>
-                                <option value="total_volume" data-translate="factorVolume">Total volume/ha (e.g., of spray mix, in L)</option>
-                                <option value="units" data-translate="factorUnits">Nber of units/ha</option>
-                            </select>
-                        </div>
-                        <div>
-                            <input type="number" id="treatmentAppContextValue" data-translate-placeholder="factorValuePlaceholder" placeholder="e.g. 100.0" min="0" step="any" disabled> 
-                        </div>
-                    </div>
-                     <small data-translate="multiplierFactorHelp">Specify factor if Dose Unit is not per Ha. Enabled when applicable.</small>
-                     <small id="treatmentContextWarning" class="validation-info" style="display: none; color: #dc3545;" data-translate="multiplierFactorDisabled">Multiplier factor disabled: Dose unit is per Ha.</small>
-                     <div id="treatmentMultiplierTypeWarning" class="validation-warning" style="display: none;" data-translate="treatmentMultiplierTypeWarning">Please select a Multiplier Factor type.</div>
-                     <div id="treatmentMultiplierValueWarning" class="validation-warning" style="display: none;" data-translate="treatmentMultiplierValueWarning">Please enter a valid Multiplier Value.</div>
-                </div>
-                <div class="form-group">
-                    <label for="treatmentTotalSurface" data-translate="totalSurfaceLabel">Total Surface to Treat (ha):</label>
-                    <input type="number" id="treatmentTotalSurface" data-translate-placeholder="totalSurfacePlaceholder" placeholder="e.g. 1.25" min="0" step="any" disabled> 
-                    <small id="treatmentSurfaceAreaNote"><span data-translate="totalSurfaceHelp1">Defaults to farm size. Enabled when a product is selected. Max:</span> <span id="treatmentMaxSurfaceArea">N/A</span> ha.</small>
-                </div>
-                <div class="form-group">
-                    <label for="treatmentQuantityPerHa" data-translate="quantityPerHaLabel">Quantity per ha (autocalculated):</label>
-                    <input type="text" id="treatmentQuantityPerHa" readonly class="calculated-field"> 
-                    <small data-translate="formulaQtyPerHa" style="font-style: italic; font-size: 0.8em; color: #6c757d;">Formula: Dose × (Multiplier Value if unit not /ha)</small>
-                    <div id="treatmentMultiplierWarning" class="validation-warning" style="display: none; margin-top: 5px;" data-translate="treatmentMultiplierGeneralWarning">
-                        Please select the correct Multiplier Factor & enter its Value.
-                    </div>
-                </div>
-                 <div class="form-group">
-                    <label for="treatmentTotalQuantityNeeded" data-translate="totalQuantityNeededLabel">Total Quantity Needed (autocalculated):</label>
-                    <input type="text" id="treatmentTotalQuantityNeeded" readonly class="calculated-field"> 
-                    <small data-translate="formulaTotalQty" style="font-style: italic; font-size: 0.8em; color: #6c757d;">Formula: Quantity per ha × Total Surface to Treat (ha)</small>
-                </div>
-                <hr style="margin: 25px 0 15px 0; border: 0; border-top: 1px solid #ccc;">
-                <h4 class="modal-section-title" data-translate="scheduleSectionTitle">Schedule & Details</h4>
-                <div class="form-group">
-                    <label for="treatmentDate" data-translate="applicationDateLabel">Application Date:</label>
-                    <input type="date" id="treatmentDate">
-                    <div id="treatmentDateWarning" class="validation-warning" style="display: none;" data-translate="treatmentDateWarning">Please select an Application Date OR check "Schedule later".</div>
-                </div>
-                <div class="form-group schedule-later-checkbox-group" style="margin-bottom: 15px;"> 
-                     <input type="checkbox" id="treatmentScheduleLater" style="width: auto; margin-right: 5px; vertical-align: middle;">
-                     <label for="treatmentScheduleLater" style="display: inline; font-weight: normal;" data-translate="scheduleLaterLabel">Schedule later</label>
-                </div>
-                <div class="form-group"> 
-                    <label data-translate="applicationTimeLabel">Application Time:</label>
-                    <div id="timeInput24hWrapper" class="time-select-wrapper">
-                        <select id="treatmentTimeHour24" required>
-                            <option value="" data-translate="hourAbbr">HH</option>
-                        </select>
-                        <span>:</span>
-                        <select id="treatmentTimeMinute24" required>
-                             <option value="" data-translate="minuteAbbr">MM</option>
-                        </select>
-                    </div>
-                    <div id="timeInput12hWrapper" class="time-select-wrapper" style="display: none;">
-                         <select id="treatmentTimeHour12" required>
-                             <option value="" data-translate="hourAbbr">HH</option>
-                        </select>
-                        <span>:</span>
-                        <select id="treatmentTimeMinute12" required>
-                             <option value="" data-translate="minuteAbbr">MM</option>
-                        </select>
-                        <select id="treatmentTimeAmPm12" required>
-                            <option value="AM">AM</option>
-                            <option value="PM">PM</option>
-                        </select>
-                    </div>
-                    <small id="treatmentTimeLaterInfo" style="display: none; color: #6c757d;" data-translate="treatmentTimeHelp">Time can be set when a date is selected.</small>
-                    <div id="treatmentTimeWarning" class="validation-warning" style="display: none;" data-translate="treatmentTimeWarning">Please select a valid Application Time when a date is specified.</div>
-                </div>
-                <div class="form-group">
-                    <div id="timeFormatSelectionGroup" class="time-format-selector">
-                        <input type="radio" id="timeFormat12h" name="timeFormat" value="12h">
-                        <label for="timeFormat12h">12h AM/PM</label>
-                        <input type="radio" id="timeFormat24h" name="timeFormat" value="24h" checked>
-                        <label for="timeFormat24h">24h</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="treatmentNotes" data-translate="notesLabel">Notes:</label>
-                    <textarea id="treatmentNotes" data-translate-placeholder="notesPlaceholder" placeholder="Any additional notes..."></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" id="saveTreatmentBtn" data-translate="saveBtn">Save</button>
-                    <button type="button" id="saveAndNextTreatmentBtn" style="background-color: #17a2b8;" data-translate="saveAndNextBtn">Save & Next</button>
-                    <button type="button" data-translate="cancelBtn">Cancel</button> 
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="notificationModal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 data-translate="notificationTitle">Application Reminder!</h2> <p id="notificationMessage"></p> <div class="modal-actions"> <button type="button" data-translate="closeBtn">Close</button> </div> </div> </div>
-    <div id="deleteTreatmentConfirmModal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 data-translate="deleteTreatmentConfirmTitle">Are you sure you want to delete this treatment?</h2> <div class="modal-actions"> <button id="deleteTreatmentConfirmBtn" data-translate="yesDeleteBtn">Yes, Delete</button> <button type="button" data-translate="cancelBtn">Cancel</button> </div> </div> </div>
-    <div id="deleteFarmConfirmModal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 data-translate="deleteFarmConfirmTitle">Are you sure you want to delete this farm (and all its associated pests/treatments)?</h2> <div class="modal-actions"> <button id="deleteFarmConfirmBtn" data-translate="yesDeleteBtn">Yes, Delete</button> <button type="button" data-translate="cancelBtn">Cancel</button> </div> </div> </div>
-    <div id="deletePestDiseaseConfirmModal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 data-translate="deletePestConfirmTitle">Are you sure you want to delete this Pest/Disease (and its associated treatments)?</h2> <div class="modal-actions"> <button id="deletePestDiseaseConfirmBtn" data-translate="yesDeleteBtn">Yes, Delete</button> <button type="button" data-translate="cancelBtn">Cancel</button> </div> </div> </div>
-    <div id="confirmTimestampModal" class="modal"> <div class="modal-content"> <span class="close-btn" >×</span> <h2 id="confirmTimestampTitle" data-translate="confirmTimestampTitle">Confirm Completion Time</h2> <p id="confirmTimestampPrompt" data-translate="confirmTimestampPromptDefault">Do you want to update the completion date and time to now?</p> <div class="modal-actions" style="justify-content: space-around;"> <button id="confirmTimestampYesBtn" style="background-color: #28a745;" data-translate="confirmTimestampYesDefault">Yes, Update Time</button> <button id="confirmTimestampNoBtn" style="background-color: #6c757d;" data-translate="confirmTimestampNoDefault">No, Keep Original</button> </div> </div> </div>
-    <div id="pastDateWarningModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" >×</span>
-            <h2 style="color: #ffc107;"><i class="fas fa-exclamation-triangle"></i> <span data-translate="pastDateWarningTitle">Past Date/Time Warning</span></h2>
-            <p class="centered-warning" data-translate="pastDateWarningMsg1">The selected date/time are in the past.</p>
-            <p class="centered-warning" data-translate="pastDateWarningMsg2">Are you sure you want to schedule this treatment for a past date/time?</p>
-            <div class="modal-actions" style="justify-content: space-around;">
-                <button id="confirmPastDateBtn" style="background-color: #28a745;" data-translate="yesContinueBtn">Yes, Continue</button>
-                <button id="editPastDateBtn" style="background-color: #6c757d;" data-translate="noGoBackBtn">No, Go Back and Edit</button>
-            </div>
-        </div>
-    </div>
-    <div id="calendarDayModal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 id="calendarDayTitle" data-translate="calendarDayTitleDefault">Treatments Scheduled</h2> <div id="calendarDayDetails"></div> <div class="modal-actions"> <button type="button" data-translate="closeBtn">Close</button> </div> </div> </div>
-    <div id="treatmentDetailsModal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 data-translate="treatmentDetailsTitle">Treatment Details</h2> <div id="treatmentDetailsContent"></div> <div class="modal-actions"><button type="button" data-translate="closeBtn">Close</button></div> </div> </div>
-    <div id="farmDetailsModal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 data-translate="farmDetailsTitle">Farm Details</h2> <div id="farmDetailsContent"></div> <div class="modal-actions"><button type="button" data-translate="closeBtn">Close</button></div> </div> </div>
-    <div id="pestDiseaseDetailsModal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 data-translate="pestDetailsTitle">Pest/Disease Details</h2> <div id="pestDiseaseDetailsContent"></div> <div class="modal-actions"><button type="button" data-translate="closeBtn">Close</button></div> </div> </div>
-    <div id="farmDateWarningModal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 style="color: #ffc107;"><i class="fas fa-exclamation-triangle"></i> <span data-translate="invalidDatesTitle">Invalid Dates</span></h2> <p id="farmDateWarningMessage" data-translate="invalidDatesMsg">The Expected Harvest Date cannot be scheduled before the Planting Date. Please update the dates.</p> <div class="modal-actions" style="justify-content: center;"> <button type="button" data-translate="okBtn">OK</button> </div> </div> </div>
-    <div id="duplicateFarmWarningModal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 style="color: #ffc107;"><i class="fas fa-exclamation-triangle"></i> <span data-translate="duplicateFarmTitle">Duplicate Farm</span></h2> <p id="duplicateFarmWarningMessage" data-translate="duplicateFarmMsg">A farm with the same Name, Size (ha), and Crop already exists. Please modify the details or use the existing farm.</p> <div class="modal-actions" style="justify-content: center;"> <button type="button" data-translate="okBtn">OK</button> </div> </div> </div>
+  </div>
 
+  <!-- Treatment Modal (Add/Edit) - UPDATED STRUCTURE & LABELS -->
+  <div id="treatmentModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">Ã—</span>
+      <h2 data-translate="treatmentModalTitleUnifiedBase">Add/Edit a Treatment</h2>
+      <form id="treatmentForm">
+        <!-- Association -->
+        <div class="form-group">
+          <label data-translate="treatmentModalAssociatedFarmLabel">Associated Farm</label>
+          <div id="treatmentDisplayFarmName" class="display-only-field">N/A</div>
+        </div>
+        <div class="form-group">
+          <label data-translate="associatedCropLabel">Associated Crop:</label>
+          <div id="treatmentDisplayCrop" class="display-only-field">N/A</div>
+        </div>
+        <div class="form-group">
+          <label data-translate="associatedPestLabel">Associated Pest/Disease:</label>
+          <div id="treatmentDisplayPest" class="display-only-field" data-translate="associatedPestNone">None (General Farm Treatment)</div>
+          <small id="treatmentPestLinkInfo" style="display: none;" data-translate="treatmentPestLinkInfo">This treatment is linked to the specific pest/disease shown above.</small>
+        </div>
 
-    <script src="script.js"></script>
+        <!-- Product Selection Section -->
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+        <h4 class="modal-section-title" data-translate="productSelectionTitle">Product Selection & Dose</h4>
+
+        <div class="form-group">
+          <label for="treatmentProductNameSelect"><span data-translate="productNameLabel">Product Name:</span> <span style="color: red;">*</span></label>
+          <select id="treatmentProductNameSelect">
+            <option value="" data-translate="selectProductPlaceholder">Select Product...</option>
+            <!-- Options populated by JS -->
+          </select>
+          <small id="productSearchSuggestion" class="product-search-suggestion" style="display: block;" data-translate="productSearchHelp">
+            If you don't know what product to use, consider using the product search module.
+          </small>
+          <div id="treatmentProductWarning" class="validation-warning" style="display: none;" data-translate="treatmentProductWarning">Please select a Product Name OR check "None of the products listed".</div>
+        </div>
+        <div class="form-group none-product-checkbox-group">
+          <input type="checkbox" id="treatmentNoneProductListed" style="width: auto; margin-right: 5px; vertical-align: middle;">
+          <label for="treatmentNoneProductListed" style="display: inline; font-weight: normal;" data-translate="noneProductListedLabel">None of the products listed</label>
+          <div id="treatmentNoneProductWarning" class="none-product-warning" style="display: none;">
+            <span data-translate="noneProductWarn1">Product-specific fields will be disabled.</span><br>
+            <span style="font-style: italic;" data-translate="noneProductWarn2">If you use other products, please only use those that are legally permitted.</span>
+          </div>
+        </div>
+
+        <div id="productDetailsPreview" style="display: none;">
+          <strong class="product-details-title" data-translate="productDetailsTitle">Product details</strong>
+          <p><strong data-translate="productDetailsRateLabel">Application Rates:</strong> <span id="productDetailRate">N/A</span></p>
+          <p><strong data-translate="productDetailsTimeLabel">Treatment Time:</strong> <span id="productDetailTime">N/A</span></p>
+          <p><strong data-translate="productDetailsFreqLabel">Frequency of Application:</strong> <span id="productDetailFrequency">N/A</span></p>
+          <a href="#" id="productDetailMoreLink" target="_blank" class="product-details-more-link" data-translate="productDetailsMoreLink">More details...</a>
+        </div>
+
+        <!-- DOSE FIELD -->
+        <div class="form-group">
+          <label for="treatmentDose"><span data-translate="doseToApplyLabel">Dose to apply:</span> <span style="color: red;">*</span></label>
+          <div class="rate-unit-group">
+            <div>
+              <input type="number" id="treatmentDose" data-translate-placeholder="dosePlaceholder" placeholder="e.g. 15.5" min="0" step="any" disabled>
+            </div>
+            <div>
+              <select id="treatmentDoseUnit" disabled>
+                <option value="" disabled selected data-translate="selectUnitPlaceholder">Select Unit...</option>
+                <option value="L/ha">L/ha</option>
+                <option value="kg/ha">kg/ha</option>
+                <option value="ml/ha">ml/ha</option>
+                <option value="g/ha">g/ha</option>
+                <option value="ml/applicator">ml/applicator</option>
+                <option value="g/applicator">g/applicator</option>
+                <option value="ml/plant">ml/plant</option>
+                <option value="g/plant">g/plant</option>
+                <option value="ml/kg">ml/kg</option>
+                <option value="g/kg">g/kg</option>
+                <option value="ml/L">ml/L</option>
+                <option value="g/L">g/L</option>
+                <option value="g/unit">g/unit</option>
+                <option value="ml/unit">ml/unit</option>
+                <option value="tablet/unit">tablet/unit</option>
+                <option value="other" data-translate="otherUnit">other</option>
+              </select>
+            </div>
+          </div>
+          <small data-translate="doseHelp">Enter the application rate. Enabled when a product is selected.</small>
+          <div id="treatmentDoseWarning" class="validation-warning" style="display: none;" data-translate="treatmentDoseWarning">Please enter the Dose to apply when a product is selected.</div>
+          <div id="treatmentUnitWarning" class="validation-warning" style="display: none;" data-translate="treatmentUnitWarning">Please select a Unit for the Dose.</div>
+        </div>
+        <!-- END DOSE FIELD -->
+
+        <!-- START: CALCULATION FIELDS -->
+        <div class="form-group">
+          <label for="treatmentAppContextType"><span data-translate="multiplierFactorLabel">Multiplier Factor:</span><span id="multiplierFactorRequired" style="color: red; display: none;">*</span></label>
+          <div class="context-value-group">
+            <div>
+              <select id="treatmentAppContextType" disabled>
+                <option value="" selected data-translate="selectFactorPlaceholder">Select factor type...</option>
+                <option value="applicators_ha" data-translate="factorAppHa">Nber of applicators/ha</option>
+                <option value="plants_ha" data-translate="factorPlantHa">Nber of plants/ha</option>
+                <option value="total_weight" data-translate="factorWeight">Total weight/ha (e.g., of seeds, in kg)</option>
+                <option value="total_volume" data-translate="factorVolume">Total volume/ha (e.g., of spray mix, in L)</option>
+                <option value="units" data-translate="factorUnits">Nber of units/ha</option>
+              </select>
+            </div>
+            <div>
+              <input type="number" id="treatmentAppContextValue" data-translate-placeholder="factorValuePlaceholder" placeholder="e.g. 100.0" min="0" step="any" disabled>
+            </div>
+          </div>
+          <small data-translate="multiplierFactorHelp">Specify factor if Dose Unit is not per Ha. Enabled when applicable.</small>
+          <small id="treatmentContextWarning" class="validation-info" style="display: none; color: #dc3545;" data-translate="multiplierFactorDisabled">Multiplier factor disabled: Dose unit is per Ha.</small>
+          <div id="treatmentMultiplierTypeWarning" class="validation-warning" style="display: none;" data-translate="treatmentMultiplierTypeWarning">Please select a Multiplier Factor type.</div>
+          <div id="treatmentMultiplierValueWarning" class="validation-warning" style="display: none;" data-translate="treatmentMultiplierValueWarning">Please enter a valid Multiplier Value.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="treatmentTotalSurface" data-translate="totalSurfaceLabel">Total Surface to Treat (ha):</label>
+          <input type="number" id="treatmentTotalSurface" data-translate-placeholder="totalSurfacePlaceholder" placeholder="e.g. 1.25" min="0" step="any" disabled>
+          <small id="treatmentSurfaceAreaNote"><span data-translate="totalSurfaceHelp1">Defaults to farm size. Enabled when a product is selected. Max:</span> <span id="treatmentMaxSurfaceArea">N/A</span> ha.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="treatmentQuantityPerHa" data-translate="quantityPerHaLabel">Quantity per ha (autocalculated):</label>
+          <input type="text" id="treatmentQuantityPerHa" readonly class="calculated-field">
+          <small data-translate="formulaQtyPerHa" style="font-style: italic; font-size: 0.8em; color: #6c757d;">Formula: Dose Ã— (Multiplier Value if unit not /ha)</small>
+          <div id="treatmentMultiplierWarning" class="validation-warning" style="display: none; margin-top: 5px;" data-translate="treatmentMultiplierGeneralWarning">
+            Please select the correct Multiplier Factor & enter its Value.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="treatmentTotalQuantityNeeded" data-translate="totalQuantityNeededLabel">Total Quantity Needed (autocalculated):</label>
+          <input type="text" id="treatmentTotalQuantityNeeded" readonly class="calculated-field">
+          <small data-translate="formulaTotalQty" style="font-style: italic; font-size: 0.8em; color: #6c757d;">Formula: Quantity per ha Ã— Total Surface to Treat (ha)</small>
+        </div>
+        <!-- END: CALCULATION FIELDS -->
+
+        <!-- Schedule Section -->
+        <hr style="margin: 25px 0 15px 0; border: 0; border-top: 1px solid #ccc;">
+        <h4 class="modal-section-title" data-translate="scheduleSectionTitle">Schedule & Details</h4>
+
+        <div class="form-group">
+          <label for="treatmentDate" data-translate="applicationDateLabel">Application Date:</label>
+          <input type="date" id="treatmentDate">
+          <div id="treatmentDateWarning" class="validation-warning" style="display: none;" data-translate="treatmentDateWarning">Please select an Application Date OR check "Schedule later".</div>
+        </div>
+
+        <div class="form-group schedule-later-checkbox-group" style="margin-bottom: 15px;">
+          <input type="checkbox" id="treatmentScheduleLater" style="width: auto; margin-right: 5px; vertical-align: middle;">
+          <label for="treatmentScheduleLater" style="display: inline; font-weight: normal;" data-translate="scheduleLaterLabel">Schedule later</label>
+        </div>
+
+        <div class="form-group">
+          <label data-translate="applicationTimeLabel">Application Time:</label>
+
+          <div id="timeInput24hWrapper" class="time-select-wrapper">
+            <select id="treatmentTimeHour24" required>
+              <option value="" data-translate="hourAbbr">HH</option>
+            </select>
+            <span>:</span>
+            <select id="treatmentTimeMinute24" required>
+              <option value="" data-translate="minuteAbbr">MM</option>
+            </select>
+          </div>
+
+          <div id="timeInput12hWrapper" class="time-select-wrapper" style="display: none;">
+            <select id="treatmentTimeHour12" required>
+              <option value="" data-translate="hourAbbr">HH</option>
+            </select>
+            <span>:</span>
+            <select id="treatmentTimeMinute12" required>
+              <option value="" data-translate="minuteAbbr">MM</option>
+            </select>
+            <select id="treatmentTimeAmPm12" required>
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+            </select>
+          </div>
+
+          <small id="treatmentTimeLaterInfo" style="display: none; color: #6c757d;" data-translate="treatmentTimeHelp">Time can be set when a date is selected.</small>
+          <div id="treatmentTimeWarning" class="validation-warning" style="display: none;" data-translate="treatmentTimeWarning">Please select a valid Application Time when a date is specified.</div>
+        </div>
+
+        <div class="form-group">
+          <div id="timeFormatSelectionGroup" class="time-format-selector">
+            <input type="radio" id="timeFormat12h" name="timeFormat" value="12h">
+            <label for="timeFormat12h">12h AM/PM</label>
+            <input type="radio" id="timeFormat24h" name="timeFormat" value="24h" checked>
+            <label for="timeFormat24h">24h</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="treatmentNotes" data-translate="notesLabel">Notes:</label>
+          <textarea id="treatmentNotes" data-translate-placeholder="notesPlaceholder" placeholder="Any additional notes..."></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="modal-actions">
+          <button type="submit" id="saveTreatmentBtn" data-translate="saveBtn">Save</button>
+          <button type="button" id="saveAndNextTreatmentBtn" style="background-color: #17a2b8;" data-translate="saveAndNextBtn">Save & Next</button>
+          <button type="button" data-translate="cancelBtn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- END Treatment Modal -->
+
+  <!-- Other Standard Modals -->
+  <div id="notificationModal" class="modal">
+    <div class="modal-content"> <span class="close-btn">Ã—</span>
+      <h2 data-translate="notificationTitle">Application Reminder!</h2>
+      <p id="notificationMessage"></p>
+      <div class="modal-actions"> <button type="button" data-translate="closeBtn">Close</button> </div>
+    </div>
+  </div>
+  <div id="deleteTreatmentConfirmModal" class="modal">
+    <div class="modal-content"> <span class="close-btn">Ã—</span>
+      <h2 data-translate="deleteTreatmentConfirmTitle">Are you sure you want to delete this treatment?</h2>
+      <div class="modal-actions"> <button id="deleteTreatmentConfirmBtn" data-translate="yesDeleteBtn">Yes, Delete</button> <button type="button" data-translate="cancelBtn">Cancel</button> </div>
+    </div>
+  </div>
+  <div id="deleteFarmConfirmModal" class="modal">
+    <div class="modal-content"> <span class="close-btn">Ã—</span>
+      <h2 data-translate="deleteFarmConfirmTitle">Are you sure you want to delete this farm (and all its associated pests/treatments)?</h2>
+      <div class="modal-actions"> <button id="deleteFarmConfirmBtn" data-translate="yesDeleteBtn">Yes, Delete</button> <button type="button" data-translate="cancelBtn">Cancel</button> </div>
+    </div>
+  </div>
+  <div id="deletePestDiseaseConfirmModal" class="modal">
+    <div class="modal-content"> <span class="close-btn">Ã—</span>
+      <h2 data-translate="deletePestConfirmTitle">Are you sure you want to delete this Pest/Disease (and its associated treatments)?</h2>
+      <div class="modal-actions"> <button id="deletePestDiseaseConfirmBtn" data-translate="yesDeleteBtn">Yes, Delete</button> <button type="button" data-translate="cancelBtn">Cancel</button> </div>
+    </div>
+  </div>
+  <div id="confirmTimestampModal" class="modal">
+    <div class="modal-content"> <span class="close-btn">Ã—</span>
+      <h2 id="confirmTimestampTitle" data-translate="confirmTimestampTitle">Confirm Completion Time</h2>
+      <p id="confirmTimestampPrompt" data-translate="confirmTimestampPromptDefault">Do you want to update the completion date and time to now?</p>
+      <div class="modal-actions" style="justify-content: space-around;"> <button id="confirmTimestampYesBtn" style="background-color: #28a745;" data-translate="confirmTimestampYesDefault">Yes, Update Time</button> <button id="confirmTimestampNoBtn" style="background-color: #6c757d;" data-translate="confirmTimestampNoDefault">No, Keep Original</button> </div>
+    </div>
+  </div>
+  <div id="pastDateWarningModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">Ã—</span>
+      <h2 style="color: #ffc107;"><i class="fas fa-exclamation-triangle"></i> <span data-translate="pastDateWarningTitle">Past Date/Time Warning</span></h2>
+      <p class="centered-warning" data-translate="pastDateWarningMsg1">The selected date/time are in the past.</p>
+      <p class="centered-warning" data-translate="pastDateWarningMsg2">Are you sure you want to schedule this treatment for a past date/time?</p>
+      <div class="modal-actions" style="justify-content: space-around;">
+        <button id="confirmPastDateBtn" style="background-color: #28a745;" data-translate="yesContinueBtn">Yes, Continue</button>
+        <button id="editPastDateBtn" style="background-color: #6c757d;" data-translate="noGoBackBtn">No, Go Back and Edit</button>
+      </div>
+    </div>
+  </div>
+  <div id="calendarDayModal" class="modal">
+    <div class="modal-content"> <span class="close-btn">Ã—</span>
+      <h2 id="calendarDayTitle" data-translate="calendarDayTitleDefault">Treatments Scheduled</h2>
+      <div id="calendarDayDetails"></div>
+      <div class="modal-actions"> <button type="button" data-translate="closeBtn">Close</button> </div>
+    </div>
+  </div>
+  <div id="treatmentDetailsModal" class="modal">
+    <div class="modal-content"> <span class="close-btn">Ã—</span>
+      <h2 data-translate="treatmentDetailsTitle">Treatment Details</h2>
+      <div id="treatmentDetailsContent"></div>
+      <div class="modal-actions"><button type="button" data-translate="closeBtn">Close</button></div>
+    </div>
+  </div>
+  <div id="farmDetailsModal" class="modal">
+    <div class="modal-content"> <span class="close-btn">Ã—</span>
+      <h2 data-translate="farmDetailsTitle">Farm Details</h2>
+      <div id="farmDetailsContent"></div>
+      <div class="modal-actions"><button type="button" data-translate="closeBtn">Close</button></div>
+    </div>
+  </div>
+  <div id="pestDiseaseDetailsModal" class="modal">
+    <div class="modal-content"> <span class="close-btn">Ã—</span>
+      <h2 data-translate="pestDetailsTitle">Pest/Disease Details</h2>
+      <div id="pestDiseaseDetailsContent"></div>
+      <div class="modal-actions"><button type="button" data-translate="closeBtn">Close</button></div>
+    </div>
+  </div>
+  <div id="farmDateWarningModal" class="modal">
+    <div class="modal-content"> <span class="close-btn">Ã—</span>
+      <h2 style="color: #ffc107;"><i class="fas fa-exclamation-triangle"></i> <span data-translate="invalidDatesTitle">Invalid Dates</span></h2>
+      <p id="farmDateWarningMessage" data-translate="invalidDatesMsg">The Expected Harvest Date cannot be scheduled before the Planting Date. Please update the dates.</p>
+      <div class="modal-actions" style="justify-content: center;"> <button type="button" data-translate="okBtn">OK</button> </div>
+    </div>
+  </div>
+  <div id="duplicateFarmWarningModal" class="modal">
+    <div class="modal-content"> <span class="close-btn">Ã—</span>
+      <h2 style="color: #ffc107;"><i class="fas fa-exclamation-triangle"></i> <span data-translate="duplicateFarmTitle">Duplicate Farm</span></h2>
+      <p id="duplicateFarmWarningMessage" data-translate="duplicateFarmMsg">A farm with the same Name, Size (ha), and Crop already exists. Please modify the details or use the existing farm.</p>
+      <div class="modal-actions" style="justify-content: center;"> <button type="button" data-translate="okBtn">OK</button> </div>
+    </div>
+  </div>
+
+  <!-- *** NEW: Mobile Navigation Menu *** -->
+  <nav class="mobile-nav">
+    <a href="#" class="nav-link" data-target="planningDropdownBtn">
+      <i class="fas fa-tasks"></i>
+      <span data-translate="planningDropdownBtn">Planning</span>
+    </a>
+    <a href="#" class="nav-link" data-target="calendarDropdownBtn">
+      <i class="fas fa-calendar-alt"></i>
+      <span data-translate="calendarDropdownBtn">Calendar</span>
+    </a>
+    <a href="#" class="nav-link" data-target="inventoryDropdownBtn">
+      <i class="fas fa-warehouse"></i>
+      <span data-translate="inventoryDropdownBtn">Inventory</span>
+    </a>
+    <a href="#" class="nav-link" data-target="reportDropdownBtn">
+      <i class="fas fa-chart-line"></i>
+      <span data-translate="reportDropdownBtn">Report</span>
+    </a>
+  </nav>
+
+  <script src="script.js" defer></script>
 </body>
+
 </html>
